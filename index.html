@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliancet
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        -->
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <!--<link rel="stylesheet" type="text/css" href="css/index.css">
+        -->
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <title>Macanan AI</title>
+    </head>
+    <body>
+      <div id="linenya">
+
+      </div>
+      <div id="rumahNya">
+        <!--<div style="top:90px; left:90px; position:absolute;">
+          coba
+        </div>
+        <div style="top:180px; left:180px; position:absolute;">
+          coba
+        </div>-->
+      </div>
+        <!--<div class="app">
+            <h1>Apache Cordova</h1>
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+            </div>
+        </div>
+        <script type="text/javascript" src="js/index.js"></script>-->
+    </body>
+    <script type="text/javascript">
+      var orangAtauMacan = 2;
+      var sudahPencet = false;
+      var endGame = false;
+      var giliranKeberapa = 1;
+      var jumlahMaxOrang = 21;
+      var jmlOrangPapan = 0;
+      function createLineElement(x, y, length, angle) {
+        var line = document.createElement("div");
+        var styles = 'border: 1px solid black; '
+                   + 'width: ' + length + 'px; '
+                   + 'height: 0px; '
+                   + '-moz-transform: rotate(' + angle + 'rad); '
+                   + '-webkit-transform: rotate(' + angle + 'rad); '
+                   + '-o-transform: rotate(' + angle + 'rad); '
+                   + '-ms-transform: rotate(' + angle + 'rad); '
+                   + 'position: absolute; '
+                   + 'top: ' + y + 'px; '
+                   + 'left: ' + x + 'px; ';
+        line.setAttribute('style', styles);
+        return line;
+      }
+      function createLine(x1, y1, x2, y2) {
+          var a = x1 - x2,
+              b = y1 - y2,
+              c = Math.sqrt(a * a + b * b);
+          var sx = (x1 + x2) / 2,
+              sy = (y1 + y2) / 2;
+          var x = sx - c / 2,
+              y = sy;
+          var alpha = Math.PI - Math.atan2(-b, a);
+          return createLineElement(x, y, c, alpha);
+      }
+
+      class classNode{
+        constructor(x,y,id) {
+          this.id = id;
+          this.type = "Node";
+          this.topNode = null;
+          this.bottomNode = null;
+          this.leftNode = null;
+          this.rightNode = null;
+          this.topRightNode = null;
+          this.topLeftNode = null;
+          this.bottomLeftNode = null;
+          this.bottomRightNode = null;
+          this.arrNode = [this.topNode,this.bottomNode,this.leftNode,this.rightNode,this.topRightNode,this.topLeftNode,this.bottomLeftNode,this.bottomRightNode];
+          this.x = x;
+          this.y = y;
+        }
+        updateArrNode(){
+          this.arrNode = [this.topNode,this.bottomNode,this.leftNode,this.rightNode,this.topRightNode,this.topLeftNode,this.bottomLeftNode,this.bottomRightNode];
+        }
+      }
+      var jmlNode = [];
+      $(document).ready(function(){
+        for (var i = 0; i < 5; i++) {
+          jmlNode[i] = [];
+          for (var j = 0; j < 9; j++) {
+            if(!((i==0 && j==1) || (i==4 && j==1)||(i==1 && j==0) || (i==3 && j==0)||(i==1 && j==8) || (i==3 && j==8) || (i==4 && j==7) || (i==0 && j==7))){
+              jmlNode[i][j] = new classNode((j*90),(i*90),i+""+j);
+              jmlNode[i][j].updateArrNode();
+            }
+          }
+        }
+        jmlNode[0][0].topNode = null;
+        jmlNode[0][0].bottomNode = jmlNode[2][0];
+        jmlNode[0][0].leftNode = null;
+        jmlNode[0][0].rightNode = null;
+        jmlNode[0][0].topRightNode = null;
+        jmlNode[0][0].topLeftNode = null;
+        jmlNode[0][0].bottomLeftNode = null;
+        jmlNode[0][0].bottomRightNode = jmlNode[1][1];
+        jmlNode[2][0].topNode = jmlNode[0][0];
+        jmlNode[2][0].bottomNode = jmlNode[4][0];
+        jmlNode[2][0].leftNode = null;
+        jmlNode[2][0].rightNode = jmlNode[2][1];
+        //jmlNode[2][0].topRightNode = jmlNode[1][1];
+        jmlNode[2][0].topLeftNode = null;
+        jmlNode[2][0].bottomLeftNode = null;
+        //jmlNode[2][0].bottomRightNode = jmlNode[3][1];
+        jmlNode[4][0].topNode = jmlNode[2][0];
+        jmlNode[4][0].bottomNode = null;
+        jmlNode[4][0].leftNode = null;
+        jmlNode[4][0].rightNode = null;
+        jmlNode[4][0].topRightNode = jmlNode[3][1];
+        jmlNode[4][0].topLeftNode = null;
+        jmlNode[4][0].bottomLeftNode = null;
+        jmlNode[4][0].bottomRightNode = null;
+        jmlNode[1][1].topNode = null;
+        jmlNode[1][1].bottomNode = jmlNode[2][1];
+        jmlNode[1][1].leftNode = null;
+        jmlNode[1][1].rightNode = null;
+        jmlNode[1][1].topRightNode = null;
+        jmlNode[1][1].topLeftNode = jmlNode[0][0];
+        //jmlNode[1][1].bottomLeftNode = jmlNode[2][0];
+        jmlNode[1][1].bottomRightNode = jmlNode[2][2];
+        jmlNode[2][1].topNode = jmlNode[1][1];
+        jmlNode[2][1].bottomNode = jmlNode[3][1];
+        jmlNode[2][1].leftNode = jmlNode[2][0];
+        jmlNode[2][1].rightNode = jmlNode[2][2];
+        jmlNode[2][1].topRightNode = null;
+        jmlNode[2][1].topLeftNode = null;
+        jmlNode[2][1].bottomLeftNode = null;
+        jmlNode[2][1].bottomRightNode = null;
+        jmlNode[3][1].topNode = jmlNode[2][1];
+        jmlNode[3][1].bottomNode = null;
+        jmlNode[3][1].leftNode = null;
+        jmlNode[3][1].rightNode = null;
+        jmlNode[3][1].topRightNode = jmlNode[2][2];
+        //jmlNode[3][1].topLeftNode = jmlNode[2][0];
+        jmlNode[3][1].bottomLeftNode = jmlNode[4][0];
+        jmlNode[3][1].bottomRightNode = null;
+        jmlNode[0][2].topNode = null;
+        jmlNode[0][2].bottomNode = jmlNode[1][2];
+        jmlNode[0][2].leftNode = null;
+        jmlNode[0][2].rightNode = jmlNode[0][3];
+        jmlNode[0][2].topRightNode = null;
+        jmlNode[0][2].topLeftNode = null;
+        jmlNode[0][2].bottomLeftNode = null;
+        jmlNode[0][2].bottomRightNode = jmlNode[1][3];
+        jmlNode[1][2].topNode = jmlNode[0][2];
+        jmlNode[1][2].bottomNode = jmlNode[2][2];
+        jmlNode[1][2].leftNode = null;
+        jmlNode[1][2].rightNode = jmlNode[1][3];
+        //jmlNode[1][2].topRightNode = jmlNode[0][3];
+        //jmlNode[1][2].topLeftNode = null;
+        //jmlNode[1][2].bottomLeftNode = null;
+        //jmlNode[1][2].bottomRightNode = jmlNode[2][3];
+        jmlNode[2][2].topNode = jmlNode[1][2];
+        jmlNode[2][2].bottomNode = jmlNode[3][2];
+        jmlNode[2][2].leftNode = jmlNode[2][1];
+        jmlNode[2][2].rightNode = jmlNode[2][3];
+        jmlNode[2][2].topRightNode = jmlNode[1][3];
+        jmlNode[2][2].topLeftNode = jmlNode[1][1];
+        jmlNode[2][2].bottomLeftNode = jmlNode[3][1];
+        jmlNode[2][2].bottomRightNode = jmlNode[3][3];
+        jmlNode[3][2].topNode = jmlNode[2][2];
+        jmlNode[3][2].bottomNode = jmlNode[4][2];
+        jmlNode[3][2].leftNode = null;
+        jmlNode[3][2].rightNode = jmlNode[3][3];
+        //jmlNode[3][2].topRightNode = jmlNode[2][3];
+        //jmlNode[3][2].topLeftNode = null;
+        //jmlNode[3][2].bottomLeftNode = null;
+        //jmlNode[3][2].bottomRightNode = jmlNode[4][3];
+        jmlNode[4][2].topNode = jmlNode[3][2];
+        jmlNode[4][2].bottomNode = null;
+        jmlNode[4][2].leftNode = null;
+        jmlNode[4][2].rightNode = jmlNode[4][3];
+        jmlNode[4][2].topRightNode = jmlNode[3][3];
+        jmlNode[4][2].topLeftNode = null;
+        jmlNode[4][2].bottomLeftNode = null;
+        jmlNode[4][2].bottomRightNode = null;
+        jmlNode[0][3].topNode = null;
+        jmlNode[0][3].bottomNode = jmlNode[1][3];
+        jmlNode[0][3].leftNode = jmlNode[0][2];
+        jmlNode[0][3].rightNode = jmlNode[0][4];
+        //jmlNode[0][3].topRightNode = null;
+        //jmlNode[0][3].topLeftNode = null;
+        //jmlNode[0][3].bottomLeftNode = jmlNode[1][2];
+        //jmlNode[0][3].bottomRightNode = jmlNode[1][4];
+        jmlNode[1][3].topNode = jmlNode[0][3];
+        jmlNode[1][3].bottomNode = jmlNode[2][3];
+        jmlNode[1][3].leftNode = jmlNode[1][2];
+        jmlNode[1][3].rightNode = jmlNode[1][4];
+        jmlNode[1][3].topRightNode = jmlNode[0][4];
+        jmlNode[1][3].topLeftNode = jmlNode[0][2];
+        jmlNode[1][3].bottomLeftNode = jmlNode[2][2];
+        jmlNode[1][3].bottomRightNode = jmlNode[2][4];
+        jmlNode[2][3].topNode = jmlNode[1][3];
+        jmlNode[2][3].bottomNode = jmlNode[3][3];
+        jmlNode[2][3].leftNode = jmlNode[2][2];
+        jmlNode[2][3].rightNode = jmlNode[2][4];
+        //jmlNode[2][3].topRightNode = jmlNode[1][4];
+        //jmlNode[2][3].topLeftNode = jmlNode[1][2];
+        //jmlNode[2][3].bottomLeftNode = jmlNode[3][2];
+        //jmlNode[2][3].bottomRightNode = jmlNode[3][4];
+        jmlNode[3][3].topNode = jmlNode[2][3];
+        jmlNode[3][3].bottomNode = jmlNode[4][3];
+        jmlNode[3][3].leftNode = jmlNode[3][2];
+        jmlNode[3][3].rightNode = jmlNode[3][4];
+        jmlNode[3][3].topRightNode = jmlNode[2][4];
+        jmlNode[3][3].topLeftNode = jmlNode[2][2];
+        jmlNode[3][3].bottomLeftNode = jmlNode[4][2];
+        jmlNode[3][3].bottomRightNode = jmlNode[4][4];
+        jmlNode[4][3].topNode = jmlNode[3][3];
+        jmlNode[4][3].bottomNode = null;
+        jmlNode[4][3].leftNode = jmlNode[4][2];
+        jmlNode[4][3].rightNode = jmlNode[4][4];
+        //jmlNode[4][3].topRightNode = jmlNode[3][4];
+        //jmlNode[4][3].topLeftNode = jmlNode[3][2];
+        //jmlNode[4][3].bottomLeftNode = null;
+        //jmlNode[4][3].bottomRightNode = null;
+        jmlNode[0][4].topNode = null;
+        jmlNode[0][4].bottomNode = jmlNode[1][4];
+        jmlNode[0][4].leftNode = jmlNode[0][3];
+        jmlNode[0][4].rightNode = jmlNode[0][5];
+        jmlNode[0][4].topRightNode = null;
+        jmlNode[0][4].topLeftNode = null;
+        jmlNode[0][4].bottomLeftNode = jmlNode[1][3];
+        jmlNode[0][4].bottomRightNode = jmlNode[1][5];
+        jmlNode[1][4].topNode = jmlNode[0][4];
+        jmlNode[1][4].bottomNode = jmlNode[2][4];
+        jmlNode[1][4].leftNode = jmlNode[1][3];
+        jmlNode[1][4].rightNode = jmlNode[1][5];
+        //jmlNode[1][4].topRightNode = jmlNode[0][5];
+        //jmlNode[1][4].topLeftNode = jmlNode[0][3];
+        //jmlNode[1][4].bottomLeftNode = jmlNode[2][3];
+        //jmlNode[1][4].bottomRightNode = jmlNode[2][5];
+        jmlNode[2][4].topNode = jmlNode[1][4];
+        jmlNode[2][4].bottomNode = jmlNode[3][4];
+        jmlNode[2][4].leftNode = jmlNode[2][3];
+        jmlNode[2][4].rightNode = jmlNode[2][5];
+        jmlNode[2][4].topRightNode = jmlNode[1][5];
+        jmlNode[2][4].topLeftNode = jmlNode[1][3];
+        jmlNode[2][4].bottomLeftNode = jmlNode[3][3];
+        jmlNode[2][4].bottomRightNode = jmlNode[3][5];
+        jmlNode[3][4].topNode = jmlNode[2][4];
+        jmlNode[3][4].bottomNode = jmlNode[4][4];
+        jmlNode[3][4].leftNode = jmlNode[3][3];
+        jmlNode[3][4].rightNode = jmlNode[3][5];
+        //jmlNode[3][4].topRightNode = jmlNode[2][5];
+        //jmlNode[3][4].topLeftNode = jmlNode[2][3];
+        //jmlNode[3][4].bottomLeftNode = jmlNode[4][3];
+        //jmlNode[3][4].bottomRightNode = jmlNode[4][5];
+        jmlNode[4][4].topNode = jmlNode[3][4];
+        jmlNode[4][4].bottomNode = null;
+        jmlNode[4][4].leftNode = jmlNode[4][3];
+        jmlNode[4][4].rightNode = jmlNode[4][5];
+        jmlNode[4][4].topRightNode = jmlNode[3][5];
+        jmlNode[4][4].topLeftNode = jmlNode[3][3];
+        jmlNode[4][4].bottomLeftNode = null;
+        jmlNode[4][4].bottomRightNode = null;
+        jmlNode[0][5].topNode = null;
+        jmlNode[0][5].bottomNode = jmlNode[1][5];
+        jmlNode[0][5].leftNode = jmlNode[0][4];
+        jmlNode[0][5].rightNode = jmlNode[0][6];
+        //jmlNode[0][5].topRightNode = null;
+        //jmlNode[0][5].topLeftNode = null;
+        //jmlNode[0][5].bottomLeftNode = jmlNode[1][4];
+        //jmlNode[0][5].bottomRightNode = jmlNode[1][6];
+        jmlNode[1][5].topNode = jmlNode[0][5];
+        jmlNode[1][5].bottomNode = jmlNode[2][5];
+        jmlNode[1][5].leftNode = jmlNode[1][4];
+        jmlNode[1][5].rightNode = jmlNode[1][6];
+        jmlNode[1][5].topRightNode = jmlNode[0][6];
+        jmlNode[1][5].topLeftNode = jmlNode[0][4];
+        jmlNode[1][5].bottomLeftNode = jmlNode[2][4];
+        jmlNode[1][5].bottomRightNode = jmlNode[2][6];
+        jmlNode[2][5].topNode = jmlNode[1][5];
+        jmlNode[2][5].bottomNode = jmlNode[3][5];
+        jmlNode[2][5].leftNode = jmlNode[2][4];
+        jmlNode[2][5].rightNode = jmlNode[2][6];
+        //jmlNode[2][5].topRightNode = jmlNode[1][6];
+        //jmlNode[2][5].topLeftNode = jmlNode[1][4];
+        //jmlNode[2][5].bottomLeftNode = jmlNode[3][4];
+        //jmlNode[2][5].bottomRightNode = jmlNode[3][6];
+        jmlNode[3][5].topNode = jmlNode[2][5];
+        jmlNode[3][5].bottomNode = jmlNode[4][5];
+        jmlNode[3][5].leftNode = jmlNode[3][4];
+        jmlNode[3][5].rightNode = jmlNode[3][6];
+        jmlNode[3][5].topRightNode = jmlNode[2][6];
+        jmlNode[3][5].topLeftNode = jmlNode[2][4];
+        jmlNode[3][5].bottomLeftNode = jmlNode[4][4];
+        jmlNode[3][5].bottomRightNode = jmlNode[4][6];
+        jmlNode[4][5].topNode = jmlNode[3][5];
+        jmlNode[4][5].bottomNode = null;
+        jmlNode[4][5].leftNode = jmlNode[4][4];
+        jmlNode[4][5].rightNode = jmlNode[4][6];
+        //jmlNode[4][5].topRightNode = jmlNode[3][6];
+        //jmlNode[4][5].topLeftNode = jmlNode[3][4];
+        //jmlNode[4][5].bottomLeftNode = null;
+        //jmlNode[4][5].bottomRightNode = null;
+        jmlNode[0][6].topNode = null;
+        jmlNode[0][6].bottomNode = jmlNode[1][6];
+        jmlNode[0][6].leftNode = jmlNode[0][5];
+        jmlNode[0][6].rightNode = null;
+        jmlNode[0][6].topRightNode = null;
+        jmlNode[0][6].topLeftNode = null;
+        jmlNode[0][6].bottomLeftNode = jmlNode[1][5];
+        jmlNode[0][6].bottomRightNode = null;
+        jmlNode[1][6].topNode = jmlNode[0][6];
+        jmlNode[1][6].bottomNode = jmlNode[2][6];
+        jmlNode[1][6].leftNode = jmlNode[1][5];
+        jmlNode[1][6].rightNode = null;
+        //jmlNode[1][6].topRightNode = null;
+        //jmlNode[1][6].topLeftNode = jmlNode[0][5];
+        //jmlNode[1][6].bottomLeftNode = jmlNode[2][5];
+        //jmlNode[1][6].bottomRightNode = null;
+        jmlNode[2][6].topNode = jmlNode[1][6];
+        jmlNode[2][6].bottomNode = jmlNode[3][6];
+        jmlNode[2][6].leftNode = jmlNode[2][5];
+        jmlNode[2][6].rightNode = jmlNode[2][7];
+        jmlNode[2][6].topRightNode = jmlNode[1][7];
+        jmlNode[2][6].topLeftNode = jmlNode[1][5];
+        jmlNode[2][6].bottomLeftNode = jmlNode[3][5];
+        jmlNode[2][6].bottomRightNode = jmlNode[3][7];
+        jmlNode[3][6].topNode = jmlNode[2][6];
+        jmlNode[3][6].bottomNode = jmlNode[4][6];
+        jmlNode[3][6].leftNode = jmlNode[3][5];
+        jmlNode[3][6].rightNode = null;
+        //jmlNode[3][6].topRightNode = null;
+        //jmlNode[3][6].topLeftNode = jmlNode[2][5];
+        //jmlNode[3][6].bottomLeftNode = jmlNode[4][5];
+        //jmlNode[3][6].bottomRightNode = null;
+        jmlNode[4][6].topNode = jmlNode[3][6];
+        jmlNode[4][6].bottomNode = null;
+        jmlNode[4][6].leftNode = jmlNode[4][5];
+        jmlNode[4][6].rightNode = null;
+        jmlNode[4][6].topRightNode = null;
+        jmlNode[4][6].topLeftNode = jmlNode[3][5];
+        jmlNode[4][6].bottomLeftNode = null;
+        jmlNode[4][6].bottomRightNode = null;
+        jmlNode[0][8].topNode = null;
+        jmlNode[0][8].bottomNode = jmlNode[2][8];
+        jmlNode[0][8].leftNode = null;
+        jmlNode[0][8].rightNode = null;
+        jmlNode[0][8].topRightNode = null;
+        jmlNode[0][8].topLeftNode = null;
+        jmlNode[0][8].bottomLeftNode = jmlNode[1][7];
+        jmlNode[0][8].bottomRightNode = null;
+        jmlNode[2][8].topNode = jmlNode[0][8];
+        jmlNode[2][8].bottomNode = jmlNode[4][8];
+        jmlNode[2][8].leftNode = jmlNode[2][7];
+        jmlNode[2][8].rightNode = null;
+        jmlNode[2][8].topRightNode = null;
+        //jmlNode[2][8].topLeftNode = jmlNode[1][7];
+        //jmlNode[2][8].bottomLeftNode = jmlNode[3][7];
+        jmlNode[2][8].bottomRightNode = null;
+        jmlNode[4][8].topNode = jmlNode[2][8];
+        jmlNode[4][8].bottomNode = null;
+        jmlNode[4][8].leftNode = null;
+        jmlNode[4][8].rightNode = null;
+        jmlNode[4][8].topRightNode = null;
+        jmlNode[4][8].topLeftNode = jmlNode[3][7];
+        jmlNode[4][8].bottomLeftNode = null;
+        jmlNode[4][8].bottomRightNode = null;
+        jmlNode[1][7].topNode = null;
+        jmlNode[1][7].bottomNode = jmlNode[2][7];
+        jmlNode[1][7].leftNode = null;
+        jmlNode[1][7].rightNode = null;
+        jmlNode[1][7].topRightNode = jmlNode[0][8];
+        jmlNode[1][7].topLeftNode = null;
+        jmlNode[1][7].bottomLeftNode = jmlNode[2][6];
+        //jmlNode[1][7].bottomRightNode = jmlNode[2][8];
+        jmlNode[2][7].topNode = jmlNode[1][7];
+        jmlNode[2][7].bottomNode = jmlNode[3][7];
+        jmlNode[2][7].leftNode = jmlNode[2][6];
+        jmlNode[2][7].rightNode = jmlNode[2][8];
+        jmlNode[2][7].topRightNode = null;
+        jmlNode[2][7].topLeftNode = null;
+        jmlNode[2][7].bottomLeftNode = null;
+        jmlNode[2][7].bottomRightNode = null;
+        jmlNode[3][7].topNode = jmlNode[2][7];
+        jmlNode[3][7].bottomNode = null;
+        jmlNode[3][7].leftNode = null;
+        jmlNode[3][7].rightNode = null;
+        //jmlNode[3][7].topRightNode = jmlNode[2][8];
+        jmlNode[3][7].topLeftNode = jmlNode[2][6];
+        jmlNode[3][7].bottomLeftNode = null;
+        jmlNode[3][7].bottomRightNode = jmlNode[4][8];
+        for (var i = 0; i < 5; i++) {
+          for (var j = 0; j < 9; j++) {
+            if(!((i==0 && j==1) || (i==4 && j==1)||(i==1 && j==0) || (i==3 && j==0)||(i==1 && j==8) || (i==3 && j==8) || (i==4 && j==7) || (i==0 && j==7))){
+              jmlNode[i][j].updateArrNode();
+              for (var k = 0; k < 8; k++) {
+                if(jmlNode[i][j].arrNode[k] != null){
+                  $("#linenya").append(createLine(jmlNode[i][j].x+30,jmlNode[i][j].y+30,jmlNode[i][j].arrNode[k].x+30,jmlNode[i][j].arrNode[k].y+30));
+                }
+              }
+            }
+          }
+        }
+        gambarUlang();
+        /*for (var i = 0; i < 5; i++) {
+          for (var j = 0; j < 9; j++) {
+            if(!((i==0 && j==1) || (i==4 && j==1) || (i==4 && j==7) || (i==0 && j==7))){
+              if(jmlNode[i][j]!=null)
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+                if(jmlNode[i][j].topNode!=null)document.body.appendChild(createLine(jmlNode[i][j].x,jmlNode[i][j].y,jmlNode[i][j].topNode.x,jmlNode[i][j].topNode.y));
+              }
+            }
+          }
+        }*/
+      });
+      var makananAwal = 3;
+      var idlama = -1;
+      function cekGame(id){
+        if (giliranKeberapa == 1) {
+          var randomNya = Math.floor((Math.random() * 2));
+          console.log(randomNya);
+          if(randomNya == 0){
+            for (var i = 1; i < 4; i++) {
+              for (var j = 3; j < 6; j++) {
+                taruhOrang(i+""+j);
+              }
+            }
+          }else{
+            taruhOrang("23");
+            for (var i = 1; i <= 3; i++) {
+              taruhOrang(i+"4");
+            }
+            for (var i = 0; i < 5; i++) {
+              taruhOrang(i+"5");
+            }
+          }
+          jumlahMaxOrang-=9;
+          jmlOrangPapan+=9;
+          giliranKeberapa++;
+        }else if (giliranKeberapa == 2) {
+          if (makananAwal <=0) {
+            taruhMacan(id);
+          }else{
+            orangDimakan(id);
+            jumlahMaxOrang--;
+            jmlOrangPapan--;
+          }
+        }else{
+          if (giliranKeberapa % 2 == 1) {
+
+          }else{
+
+          }
+        }
+      }
+      function orangDimakan(id){
+        var cupu = id.split("");
+        if(jmlNode[cupu[0]][cupu[1]].type=="Orang"){
+          jmlNode[cupu[0]][cupu[1]].type="Node";
+          makananAwal--;
+        }
+        gambarUlang();
+      }
+      function gambarUlang(){
+        $("#rumahNya").html("");
+        for (var i = 0; i < 5; i++) {
+          for (var j = 0; j < 9; j++) {
+            if(!((i==0 && j==1) || (i==4 && j==1)||(i==1 && j==0) || (i==3 && j==0)||(i==1 && j==8) || (i==3 && j==8) || (i==4 && j==7) || (i==0 && j==7))){
+              if (jmlNode[i][j].type == "Orang") {
+                $("#rumahNya").append("<div onclick='cekGame("+i+"+\"\"+"+j+")'style='top:"+(i*90)+"px; background-image: url(\"man.png\"); background-size:cover; left:"+(j*90)+"px; width:60px; height:60px; vertical-align:middle; text-align:center; background-color:yellow; border:1px solid black; border-radius:100%; line-height: 60px; position:absolute;' id='idnya"+i+""+j+"'>"+i+j+"</div>");
+              }else if (jmlNode[i][j].type == "Macan") {
+                $("#rumahNya").append("<div onclick='cekGame("+i+"+\"\"+"+j+")'style='top:"+(i*90)+"px; background-image: url(\"tiger.png\"); background-size:cover; left:"+(j*90)+"px; width:60px; height:60px; vertical-align:middle; text-align:center; background-color:yellow; border:1px solid black; border-radius:100%; line-height: 60px; position:absolute;' id='idnya"+i+""+j+"'>"+i+j+"</div>");
+              }else{
+                $("#rumahNya").append("<div onclick='cekGame("+i+"+\"\"+"+j+")'style='top:"+(i*90)+"px; left:"+(j*90)+"px; width:60px; height:60px; vertical-align:middle; text-align:center; background-color:yellow; border:1px solid black; border-radius:100%; line-height: 60px; position:absolute;' id='idnya"+i+""+j+"'>"+i+j+"</div>");
+              }
+            }
+          }
+        }
+      }
+      function taruhOrang(id){
+        var cupu = id.split("");
+        if(jmlNode[cupu[0]][cupu[1]].type=="Node"){
+          jmlNode[cupu[0]][cupu[1]].type="Orang";
+        }else{
+          alert("Tidak Boleh!");
+        }
+        gambarUlang();
+      }
+      function taruhMacan(id){
+        var cupu = id.split("");
+        if(jmlNode[cupu[0]][cupu[1]].type=="Node"){
+          jmlNode[cupu[0]][cupu[1]].type="Macan";
+          giliranKeberapa++;
+        }else{
+          alert("Tidak Boleh!");
+        }
+        gambarUlang();
+      }
+    </script>
+</html>
