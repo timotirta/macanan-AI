@@ -50,6 +50,27 @@
           coba
         </div>-->
       </div>
+      <br><br><br><br>
+      <br><br><br><br>
+      <br><br><br><br>
+      <br><br><br><br>
+      <br><br><br><br>
+      <br><br><br><br>
+        <div id="tempatsemua" width="100%" height="100px" >
+          <table>
+            <tr>
+              <td>Giliran : </td>
+              <td id="tempatgiliran">Tekan Node!</td>
+              <td width="30%"></td>
+              <td>Sisa Orang : </td>
+              <td id="tempatOrang">21</td>
+              <td width="30%"></td>
+              <td>Time : </td>
+              <td id="tempattime">0</td>
+              <td>Secs</td>
+            </tr>
+          </table>
+        </div>
         <!--<div class="app">
             <h1>Apache Cordova</h1>
             <div id="deviceready" class="blink">
@@ -66,6 +87,27 @@
       var giliranKeberapa = 1;
       var jumlahMaxOrang = 21;
       var jmlOrangPapan = 0;
+      var time = 0;
+      var orangMenang = false;
+      var macanMenang = false;
+      var idmacan = -1;
+      function gantiWaktudanGiliran(){
+        var cupu = giliranKeberapa % 2 == 1 ? "Orang" : "Macan";
+        $("#tempatgiliran").html(cupu);
+        $("#tempatOrang").html(jumlahMaxOrang);
+        time++;
+        $("#tempattime").html(parseInt(time/100));
+        if (jumlahMaxOrang+jmlOrangPapan<11) {
+          macanMenang = true;
+        }
+        if (orangMenang) {
+          alert("Orang Menang");clearInterval(myVar);
+        }
+        if (macanMenang) {
+          alert("Macan Menang");clearInterval(myVar);
+        }
+      }
+      var myVar = setInterval(function(){gantiWaktudanGiliran();},10);
       function createLineElement(x, y, length, angle) {
         var line = document.createElement("div");
         var styles = 'border: 1px solid black; '
@@ -455,7 +497,6 @@
       function cekGame(id){
         if (giliranKeberapa == 1) {
           var randomNya = Math.floor((Math.random() * 2));
-          console.log(randomNya);
           if(randomNya == 0){
             for (var i = 1; i < 4; i++) {
               for (var j = 3; j < 6; j++) {
@@ -476,21 +517,69 @@
           giliranKeberapa++;
         }else if (giliranKeberapa == 2) {
           if (makananAwal <=0) {
-            taruhMacan(id);
+            var cupu = id.split("");
+            if (jmlNode[cupu[0]][cupu[1]].type == "Node") {
+              taruhMacan(id);
+              giliranKeberapa++;
+            }
           }else{
-            orangDimakan(id);
-            jumlahMaxOrang--;
+            orangDimakanAwal(id);
             jmlOrangPapan--;
           }
         }else{
           if (giliranKeberapa % 2 == 1) {
+            if (sudahPencet) {
+              var cupu = id.split("");
+              if (jmlNode[cupu[0]][cupu[1]].type == "Node" && cekJalanOrang(id,idlama)) {
+                taruhOrang(id);
+                balikNode(idlama);
+                sudahPencet=false;
+                idlama=-1;
+                giliranKeberapa++;
+              }
+            }else {
+              var cupu = id.split("");
+              if (jmlNode[cupu[0]][cupu[1]].type == "Orang") {
+                $("#idnya"+id).css("box-shadow","5px 5px 5px grey");
+                idlama = id;
+                sudahPencet=true;
+              }else if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
 
+              }else{
+                if (jumlahMaxOrang >0) {
+                  taruhOrang(id);
+                  jumlahMaxOrang--;
+                  jmlOrangPapan++;
+                  giliranKeberapa++;
+                }
+              }
+            }
+            cekKalahMacan();
           }else{
-
+            var cupu = id.split("");
+            if (sudahPencet) {
+              if (jmlNode[cupu[0]][cupu[1]].type == "Node") {
+                var penampung = cekJalanMacan(id,idlama);
+                if (penampung != -1) {
+                  var cupu1 = idlama.split("");
+                  recursiveBalikNode(jmlNode[cupu1[0]][cupu1[1]],penampung,idlama);
+                  taruhMacan(id);
+                  sudahPencet=false;
+                  idlama=-1;
+                  giliranKeberapa++;
+                }
+              }
+            }else{
+              if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
+                $("#idnya"+id).css("box-shadow","5px 5px 5px grey");
+                idlama = id;
+                sudahPencet=true;
+              }
+            }
           }
         }
       }
-      function orangDimakan(id){
+      function orangDimakanAwal(id){
         var cupu = id.split("");
         if(jmlNode[cupu[0]][cupu[1]].type=="Orang"){
           jmlNode[cupu[0]][cupu[1]].type="Node";
@@ -514,23 +603,110 @@
           }
         }
       }
+      function cekJalanOrang(id,idlama){
+        var cupu = id.split("");
+        for (var i = 0; i < jmlNode[cupu[0]][cupu[1]].arrNode.length; i++) {
+          if (jmlNode[cupu[0]][cupu[1]].arrNode[i] != null) {
+            if (jmlNode[cupu[0]][cupu[1]].arrNode[i].id == idlama) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      function cekJalanMacan(id,idlama){
+        var cupu = idlama.split("");
+        for (var i = 0; i < jmlNode[cupu[0]][cupu[1]].arrNode.length; i++) {
+          if (jmlNode[cupu[0]][cupu[1]].arrNode[i] != null) {
+            if (jmlNode[cupu[0]][cupu[1]].arrNode[i].id == id) {
+              return i;
+            }
+          }
+        }
+        var cupu1 = idlama.split("");
+        for (var i = 0; i < jmlNode[cupu1[0]][cupu1[1]].arrNode.length; i++) {
+          var isi = recursiveCekJalanMacan(jmlNode[cupu1[0]][cupu1[1]].arrNode[i],i,0);
+          isi = isiku;
+          if(isi[0] == id && isi[1] % 2 == 1){
+            return i;
+          }
+        }
+        return -1;
+      }
+      var isiku;
+      function recursiveCekJalanMacan(nodeawal,tempatarr,depth){
+        if (nodeawal!=null) {
+          if (nodeawal.arrNode[tempatarr] != null && nodeawal.type != "Node") {
+            recursiveCekJalanMacan(nodeawal.arrNode[tempatarr],tempatarr,++depth);
+          }else{
+            var isi2 = new Array(2);
+            isi2[0] = nodeawal.id;
+            isi2[1] = depth;
+            isiku = isi2;
+            return isi2;
+          }
+        }else{
+          var isi2 = new Array(2);
+          isi2[0] = -1;
+          isi2[1] = depth;
+          isiku = isi2;
+          return isi2;
+        }
+      }
+      function cekKalahMacan(){
+        var cupu1 = idmacan.split("");
+        var adajalan = 0;
+          console.clear();
+        for (var i = 0; i < jmlNode[cupu1[0]][cupu1[1]].arrNode.length; i++) {
+          if (jmlNode[cupu1[0]][cupu1[1]].arrNode[i]!=null) {
+            recursiveCekJalanMacan(jmlNode[cupu1[0]][cupu1[1]].arrNode[i],i,0)
+            var isi = isiku;
+            var cupu = isi[0].split("");
+            if (jmlNode[cupu[0]][cupu[1]].type=="Node" && (isi[1]%2==1 || isi[1]==0)) {
+              adajalan++;
+            }
+          }
+        }
+
+        if (adajalan==0) {
+          orangMenang=true;
+        }
+      }
+      function recursiveKalahinMacan(nodeawal,tempatarr){
+        if (nodeawal.arrNode[tempatarr]!=null) {
+          if (nodeawal.type == "Node") {
+            return true;
+          }else{
+            recursiveKalahinMacan(nodeawal.arrNode[tempatarr],tempatarr);
+          }
+        }else{
+          return false;
+        }
+      }
+      function recursiveBalikNode(nodeawal,tempatarr,idlama){
+        if(nodeawal.type=="Orang")jmlOrangPapan--;
+        nodeawal.type="Node";
+        gambarUlang();
+        if (nodeawal.arrNode[tempatarr] != null ) {
+          if (nodeawal.arrNode[tempatarr].type != "Node" && nodeawal.arrNode[tempatarr].id != idlama) {
+            recursiveBalikNode(nodeawal.arrNode[tempatarr],tempatarr);
+          }
+        }
+      }
+      function balikNode(id){
+        var cupu = id.split("");
+        jmlNode[cupu[0]][cupu[1]].type="Node";
+        gambarUlang();
+      }
       function taruhOrang(id){
         var cupu = id.split("");
-        if(jmlNode[cupu[0]][cupu[1]].type=="Node"){
-          jmlNode[cupu[0]][cupu[1]].type="Orang";
-        }else{
-          alert("Tidak Boleh!");
-        }
+        jmlNode[cupu[0]][cupu[1]].type="Orang";
         gambarUlang();
       }
       function taruhMacan(id){
         var cupu = id.split("");
-        if(jmlNode[cupu[0]][cupu[1]].type=="Node"){
-          jmlNode[cupu[0]][cupu[1]].type="Macan";
-          giliranKeberapa++;
-        }else{
-          alert("Tidak Boleh!");
-        }
+        jmlNode[cupu[0]][cupu[1]].type="Macan";
+        idmacan=id;
         gambarUlang();
       }
     </script>
