@@ -80,7 +80,7 @@
         <script type="text/javascript" src="js/index.js"></script>-->
     </body>
     <script type="text/javascript">
-      var orangAtauMacan = 2;
+      var orangAtauMacan = 3;
       var sudahPencet = false;
       var endGame = false;
       var giliranKeberapa = 1;
@@ -91,115 +91,166 @@
       var macanMenang = false;
       var idmacan = -1;
       var ThinkAI= false;
-      var plydepth = 3;
+      var plydepth = 1;
       var anakMati = 0;
-      function AIMacan(){
-
-      }
       function itungSBE(turnkeberapa, level=0){
-        var nilai = -999999;
+        let nilai = -Infinity;
+        let tempReturn = [];
         if (level == plydepth) {
           nilai = 0;
-          if (cekJumlahJalanMacan() == 0) {
-            nilai = -1000;
+          var idmacansplitted = idmacan.split("");
+          if (cekJumlahJalanMacanAI() == 0) {
+            nilai -= 1000;
           }
-          nilai += cekJumlahJalanMacan();
-          var cupu = idmacan.split("");
-          for (var i = 0; i < jmlNode[cupu[0]][cupu[1]].arrNode.length; i++) {
-            if (jmlNode[cupu[0]][cupu[1]].arrNode[i] != null) {
-              console.log(itungMakanJalanMacan(jmlNode[cupu[0]][cupu[1]].arrNode[i],i,0));
-              anakMati += itungMakanJalanMacan(jmlNode[cupu[0]][cupu[1]].arrNode[i],i,0);
-              nilai += itungMakanJalanMacan(jmlNode[cupu[0]][cupu[1]].arrNode[i],i,0);
+          nilai += cekJumlahJalanMacanAI()*10;
+          anakMati = 0;
+          for (var i = 0; i < jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode.length; i++) {
+            if (jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i] != null) {
+              anakMati = recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) % 2 == 0 ? anakMati - recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) * 2 : anakMati + recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) * 2;
+              nilai = recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) % 2 == 0 ? nilai - recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) * 2 : nilai + recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) * 2;
             }
           }
-          nilai += (anakMati * 2);
-          if (anakMati >= 7) {
+          nilai += anakMati * 5;
+          if (anakMati >= 6 ) {
             nilai += 1000;
           }
+          console.log(idmacan);
           if (idmacan == "02" || idmacan == "06" || idmacan == "42" || idmacan == "46" || idmacan == "00" || idmacan == "40" || idmacan == "08" || idmacan == "48") {
-            nilai -= 10;
+            nilai -= 100;
           }
-          return turnkeberapa == 1 ? -nilai : nilai;
+          return turnkeberapa == 2 ? -nilai : nilai;
         }else{
-          if(turnkeberapa == 1) {
-            for (var i = 0; i < jmlNode[cupu[0]][cupu[1]].arrNode.length; i++) {
-              if (jmlNode[cupu[0]][cupu[1]].arrNode[i] != null) {
-                var nodeawal = jmlNode[cupu[0]][cupu[1]];
-                var lastkid = anakMati;
-
-              }
-            }
-              for (var i in tigerPossibleMove) {
-                var asalNode = tiger.node;
-                var lastKid = kidDead;
-                console.log("lastKid :" + kidDead);
-                var kidSimulateDead = tigerSimulateMove(tigerPossibleMove[i].node, tigerPossibleMove[i].arah);
-                var hasil = AI(2, level+1);
-                console.log("PLY : " + level + ", Arah : ", tigerPossibleMove[i].arah, ", Hasil : " + hasil);
-                if(hasil > nilai) {
-                  nilai = hasil;
-                  if(level == 0) {
-                    ret = {node: tigerPossibleMove[i].node, arah: tigerPossibleMove[i].arah};
+          if (turnkeberapa == 1) {
+            //macan
+            var idmacansplitted = idmacan.split("");
+            for (var i = 0; i < jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode.length; i++) {
+              if (jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i] != null) {
+                var tempDepth = recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0);
+                if (tempDepth != 0) {
+                  var nodeawal = idmacan;
+                  var nodeTembak = recursiveCekIdJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i);
+                  if (nodeTembak != -1) {
+                    var diHidupkan = recursiveMakanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,nodeTembak);
+                    taruhMacan(nodeTembak);
+                    balikNode(nodeawal);
+                    var totalTemp = itungSBE(2,level+1);
+                    console.log("Macan Level : "+level + " Node Tembak : "+nodeTembak + " Node Awal : "+nodeawal + " Nilai : " + nilai + " Total Temp : "+totalTemp );
+                    if (totalTemp >= nilai) {
+                      nilai = totalTemp
+                      if (level == 0) {
+                        tempReturn = {0:nodeawal , 1:nodeTembak};
+                      }
+                    }
+                    for (var j = 0; j < diHidupkan.length; j++) {
+                      taruhOrang(diHidupkan[j]);
+                      jmlOrangPapan++;
+                    }
+                    balikNode(nodeTembak);
+                    taruhMacan(nodeawal);
                   }
                 }
-                //bunuhkid
-                for(var kid of kidSimulateDead) {
-                  kid.simulateLive();
-                }
-                kidDead = lastKid;
-                tiger.gerak(asalNode, false);
               }
-          }else {
-            if(currentKidCount < 21) {
-              for(var i=0; i<37; i++) {
-                console.log("nodes " + i + nodes[i].terisi);
-                if(nodes[i].terisi == 0) {
-                  nodes[i].terisi = 1;
-                  console.log("MASUK KID " + i);
-                  var hasil = AI(1, level+1);
-                  if(hasil > nilai) {
-                    nilai = hasil;
-                    if(level == 0) {
-                      ret = {node: nodes[i]};
+            }
+          }else{
+            //orang
+            if (jumlahMaxOrang > 0) {
+              for (var i = 0; i < 5; i++) {
+                for (var j = 0; j < 9; j++) {
+                  if(!((i==0 && j==1) || (i==4 && j==1)||(i==1 && j==0) || (i==3 && j==0)||(i==1 && j==8) || (i==3 && j==8) || (i==4 && j==7) || (i==0 && j==7))){
+                    if (jmlNode[i][j].type != "Orang" && jmlNode[i][j].type != "Macan") {
+                      taruhOrang(i+""+j);
+                      jmlOrangPapan++;
+                      jumlahMaxOrang--;
+                      var totalTemp = itungSBE(1,level+1);
+                      console.log("Orang Level : "+level + " Orang Baru : " +  i+""+j + " Orang Lama : " + i+""+j + " Nilai : " + nilai + " Total Temp : "+totalTemp );
+                      if (totalTemp >= nilai) {
+                        nilai = totalTemp
+                        if (level == 0) {
+                          tempReturn = {0:i+""+j , 1:i+""+j};
+                        }
+                      }
+                      jumlahMaxOrang++;
+                      jmlOrangPapan--;
+                      balikNode(i+""+j);
                     }
                   }
-                  nodes[i].terisi = 0;
                 }
               }
-            }else {
-              for (var i = 0; i < currentKidCount; i++) {
-                if(kids[i].node != null) {
-                  var possibleMove = kids[i].possibleMove();
-                  for (var j in possibleMove) {
-                    var asalNode = kids[i].node;
-
-                    kids[i].gerak(possibleMove[j].node, false);
-
-                    var hasil = AI(1, level+1);
-                            if(hasil > nilai) {
-                                nilai = hasil;
-                                if(level == 0) {
-                        ret = {idx: i, node: possibleMove[j].node};
-                      }
+            }else{
+              for (var i = 0; i < 5; i++) {
+                for (var j = 0; j < 9; j++) {
+                  if(!((i==0 && j==1) || (i==4 && j==1)||(i==1 && j==0) || (i==3 && j==0)||(i==1 && j==8) || (i==3 && j==8) || (i==4 && j==7) || (i==0 && j==7))){
+                    if (jmlNode[i][j].type == "Orang") {
+                      for (var k = 0; k < jmlNode[i][j].arrNode.length; k++) {
+                        if (jmlNode[i][j].arrNode[k] != null) {
+                          if (cekJalanOrang(jmlNode[i][j].arrNode[k].id,i+""+j) && jmlNode[i][j].arrNode[k].type == "Node") {
+                            taruhOrang(jmlNode[i][j].arrNode[k].id);
+                            balikNode(i+""+j);
+                            var totalTemp = itungSBE(1,level+1);
+                            console.log("Orang Level : "+level + " Orang Baru : " + jmlNode[i][j].arrNode[k].id + " Orang Lama : " + i+""+j+ " Nilai : " + nilai + " Total Temp : "+totalTemp );
+                            if (totalTemp >= nilai) {
+                              nilai = totalTemp
+                              if (level == 0) {
+                                tempReturn = {0:i+""+j , 1:jmlNode[i][j].arrNode[k].id};
+                              }
                             }
-                    kids[i].gerak(asalNode, false);
+                            balikNode(jmlNode[i][j].arrNode[k].id);
+                            taruhOrang(i+""+j);
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
           }
         }
+        if(level == 0) {
+      		return tempReturn;
+      	}
+        return -nilai;
       }
-      function itungMakanJalanMacan(nodeawal,tempatarr,depth){
-        if (nodeawal!=null) {
-          if (nodeawal.arrNode[tempatarr] != null && nodeawal.type != "Node") {
-            recursiveCekJalanMacan(nodeawal.arrNode[tempatarr],tempatarr,++depth);
-          }else{
-            return depth % 2 == 1 ? depth : 0;
-          }
-        }else{
-          return depth;
+      function recursiveMakanMacanAI(nodeawal,tempatarr,nodeTembak,diHidupkan = []){
+        if (nodeawal.type == "Orang") {
+          jmlOrangPapan--;
+          diHidupkan.push(nodeawal.id);
         }
+        nodeawal.type="Node";
+        if (nodeawal.arrNode[tempatarr] != null ) {
+          if (nodeawal.arrNode[tempatarr].type != "Node" && nodeawal.arrNode[tempatarr].id != nodeTembak) {
+            return recursiveMakanMacanAI(nodeawal.arrNode[tempatarr],tempatarr,nodeTembak,diHidupkan);
+          }
+        }
+        return diHidupkan;
+      }
+      function recursiveCekIdJalanMacanAI(nodeawal,tempatarr,depth){
+        if (nodeawal != null) {
+          if (nodeawal.type != "Node") {
+            return recursiveCekIdJalanMacanAI(nodeawal.arrNode[tempatarr],tempatarr);
+          }
+        }
+        return nodeawal == null ? -1 : nodeawal.id;
+      }
+      function recursiveCekJumlahJalanMacanAI(nodeawal,tempatarr,depth){
+        if (nodeawal != null) {
+          if (nodeawal.type != "Node") {
+            return recursiveCekJumlahJalanMacanAI(nodeawal.arrNode[tempatarr],tempatarr,depth+1);
+          }
+        }
+        return depth % 2 == 1 ? depth : depth == 0 ? 1 : 0;
+      }
+      function cekJumlahJalanMacanAI(){
+        var idmacansplitted = idmacan.split("");
+        var adajalan = 0;
+        for (var i = 0; i < jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode.length; i++) {
+          if (jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i] != null) {
+            if(recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) != 0){
+              adajalan++;
+            }
+          }
+        }
+        return adajalan;
       }
       function gantiWaktudanGiliran(){
         var cupu = giliranKeberapa % 2 == 1 ? "Orang" : "Macan";
@@ -208,13 +259,17 @@
         time++;
         $("#tempattime").html(parseInt(time/100));
         if (orangMenang) {
-          alert("Orang Menang");clearInterval(myVar);
+          alert("Orang Menang");clearInterval(myVar);clearInterval(myVar2);
         }
         if (macanMenang) {
-          alert("Macan Menang");clearInterval(myVar);
+          alert("Macan Menang");clearInterval(myVar);clearInterval(myVar2);
         }
       }
+      function AIJalan(){
+        cekGame();
+      }
       var myVar = setInterval(function(){gantiWaktudanGiliran();},10);
+      var myVar2 = setInterval(function(){AIJalan();},500);
       function createLineElement(x, y, length, angle) {
         var line = document.createElement("div");
         var styles = 'border: 1px solid black; '
@@ -241,34 +296,10 @@
           var alpha = Math.PI - Math.atan2(-b, a);
           return createLineElement(x, y, c, alpha);
       }
-
-      class classNode{
-        constructor(x,y,id) {
-          this.id = id;
-          this.type = "Node";
-          this.topNode = null;
-          this.bottomNode = null;
-          this.leftNode = null;
-          this.rightNode = null;
-          this.topRightNode = null;
-          this.topLeftNode = null;
-          this.bottomLeftNode = null;
-          this.bottomRightNode = null;
-          this.arrNode = [this.topNode,this.bottomNode,this.leftNode,this.rightNode,this.topRightNode,this.topLeftNode,this.bottomLeftNode,this.bottomRightNode];
-          this.x = x;
-          this.y = y;
-        }
-        updateArrNode(){
-          this.arrNode = [this.topNode,this.bottomNode,this.leftNode,this.rightNode,this.topRightNode,this.topLeftNode,this.bottomLeftNode,this.bottomRightNode];
-        }
-      }
-      var jmlNode = [];
-      $(document).ready(function(){
-        startGame();
-      });
       var makananAwal = 3;
       var idlama = -1;
       function cekGame(id){
+        console.clear();
         if (giliranKeberapa == 1) {
           var randomNya = Math.floor((Math.random() * 2));
           if(randomNya == 0){
@@ -289,65 +320,135 @@
           jumlahMaxOrang-=9;
           jmlOrangPapan+=9;
           giliranKeberapa++;
+          if(orangAtauMacan == 3 || orangAtauMacan == 1){
+            cekGame();
+          }
         }else if (giliranKeberapa == 2) {
-          if (makananAwal <=0) {
-            var cupu = id.split("");
-            if (jmlNode[cupu[0]][cupu[1]].type == "Node") {
-              taruhMacan(id);
-              giliranKeberapa++;
+          if (orangAtauMacan == 2 || orangAtauMacan == 4) {
+            if (makananAwal <=0) {
+              var cupu = id.split("");
+              if (jmlNode[cupu[0]][cupu[1]].type == "Node") {
+                taruhMacan(id);
+                giliranKeberapa++;
+                if (orangAtauMacan == 2) {
+                  cekGame();
+                }
+              }
+            }else{
+              orangDimakanAwal(id);
+              jmlOrangPapan--;
             }
           }else{
-            orangDimakanAwal(id);
-            jmlOrangPapan--;
+            var cupuku = [];
+            jmlNode.forEach(function(index) {
+              index.forEach(function(index2){
+                if(index2.type == "Orang"){
+                  cupuku.push(index2);
+                }
+              });
+            });
+            var cupuku2 = [];
+            for (var k = 0; k < 4; k++) {
+              if(k<=2){
+                var randomku = Math.floor(Math.random()*cupuku.length);
+                orangDimakanAwal(cupuku[randomku].id);
+                jmlOrangPapan--;
+                cupuku2.push(cupuku[randomku].id);
+                cupuku = [];
+                jmlNode.forEach(function(index) {
+                  index.forEach(function(index2){
+                    if(index2.type == "Orang"){
+                      cupuku.push(index2);
+                    }
+                  });
+                });
+              }else{
+                var randomku = Math.floor(Math.random()*cupuku2.length);
+                taruhMacan(cupuku2[randomku]);
+                giliranKeberapa++;
+              }
+            }
           }
         }else{
           if (giliranKeberapa % 2 == 1) {
-            if (sudahPencet) {
-              var cupu = id.split("");
-              if (jmlNode[cupu[0]][cupu[1]].type == "Node" && cekJalanOrang(id,idlama)) {
-                taruhOrang(id);
-                balikNode(idlama);
-                sudahPencet=false;
-                idlama=-1;
-                giliranKeberapa++;
-              }
-            }else {
-              var cupu = id.split("");
-              if (jmlNode[cupu[0]][cupu[1]].type == "Orang") {
-                $("#idnya"+id).css("box-shadow","5px 5px 5px grey");
-                idlama = id;
-                sudahPencet=true;
-              }else if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
-
+            if (orangAtauMacan == 2 || orangAtauMacan == 3) {
+              var idtemp = itungSBE(2);
+              console.log(idtemp);
+              if (idtemp[0] == idtemp[1]) {
+                //console.log("INI SAMA");
+                taruhOrang(idtemp[0]);
+                jmlOrangPapan++;
+                jumlahMaxOrang--;
               }else{
-                if (jumlahMaxOrang >0) {
-                  taruhOrang(id);
-                  jumlahMaxOrang--;
-                  jmlOrangPapan++;
-                  giliranKeberapa++;
-                }
+                taruhOrang(idtemp[1]);
+                balikNode(idtemp[0]);
               }
-            }
-            cekKalahMacan();
-          }else{
-            var cupu = id.split("");
-            if (sudahPencet) {
-              if (jmlNode[cupu[0]][cupu[1]].type == "Node") {
-                var penampung = cekJalanMacan(id,idlama);
-                if (penampung != -1) {
-                  var cupu1 = idlama.split("");
-                  recursiveBalikNode(jmlNode[cupu1[0]][cupu1[1]],penampung,idlama);
-                  taruhMacan(id);
+              giliranKeberapa++;
+            }else {
+              if (sudahPencet) {
+                var cupu = id.split("");
+                if (jmlNode[cupu[0]][cupu[1]].type == "Node" && cekJalanOrang(id,idlama)) {
+                  taruhOrang(id);
+                  balikNode(idlama);
                   sudahPencet=false;
                   idlama=-1;
                   giliranKeberapa++;
                 }
+              }else {
+                var cupu = id.split("");
+                if (jmlNode[cupu[0]][cupu[1]].type == "Orang") {
+                  $("#idnya"+id).css("box-shadow","5px 5px 5px grey");
+                  idlama = id;
+                  sudahPencet=true;
+                }else if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
+
+                }else{
+                  if (jumlahMaxOrang >0) {
+                    taruhOrang(id);
+                    jumlahMaxOrang--;
+                    jmlOrangPapan++;
+                    giliranKeberapa++;
+                  }
+                }
               }
+              if (orangAtauMacan==1) {
+                cekGame();
+              }
+            }
+            cekKalahMacan();
+          }else{
+            if (orangAtauMacan == 3 || orangAtauMacan == 1) {
+              var idtemp = itungSBE(1);
+              console.log(idtemp);
+              var penampung = cekJalanMacan(idtemp[1],idtemp[0]);
+              var tempatMacanAwal = idtemp[0].split("");
+              recursiveBalikNode(jmlNode[tempatMacanAwal[0]][tempatMacanAwal[1]],penampung,idtemp[0]);
+              taruhMacan(idtemp[1]);
+              giliranKeberapa++;
             }else{
-              if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
-                $("#idnya"+id).css("box-shadow","5px 5px 5px grey");
-                idlama = id;
-                sudahPencet=true;
+              if (sudahPencet) {
+                var cupu = id.split("");
+                if (jmlNode[cupu[0]][cupu[1]].type == "Node") {
+                  var penampung = cekJalanMacan(id,idlama);
+                  if (penampung != -1) {
+                    var cupu1 = idlama.split("");
+                    recursiveBalikNode(jmlNode[cupu1[0]][cupu1[1]],penampung,idlama);
+                    taruhMacan(id);
+                    sudahPencet=false;
+                    idlama=-1;
+                    giliranKeberapa++;
+                  }
+                }
+              }else{
+                var cupu = id.split("");
+                if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
+                  $("#idnya"+id).css("box-shadow","5px 5px 5px grey");
+                  idlama = id;
+                  sudahPencet=true;
+                }
+              }
+              if (orangAtauMacan == 2) {
+                cekGame();
               }
             }
             cekKalahOrang();
@@ -436,7 +537,6 @@
       function cekJumlahJalanMacan(){
         var cupu1 = idmacan.split("");
         var adajalan = 0;
-          console.clear();
         for (var i = 0; i < jmlNode[cupu1[0]][cupu1[1]].arrNode.length; i++) {
           if (jmlNode[cupu1[0]][cupu1[1]].arrNode[i]!=null) {
             recursiveCekJalanMacan(jmlNode[cupu1[0]][cupu1[1]].arrNode[i],i,0)
@@ -452,7 +552,6 @@
       function cekKalahMacan(){
         var cupu1 = idmacan.split("");
         var adajalan = 0;
-          console.clear();
         for (var i = 0; i < jmlNode[cupu1[0]][cupu1[1]].arrNode.length; i++) {
           if (jmlNode[cupu1[0]][cupu1[1]].arrNode[i]!=null) {
             recursiveCekJalanMacan(jmlNode[cupu1[0]][cupu1[1]].arrNode[i],i,0)
@@ -841,5 +940,32 @@
           }
         }
       }*/
+      class classNode{
+        constructor(x,y,id) {
+          this.id = id;
+          this.type = "Node";
+          this.topNode = null;
+          this.bottomNode = null;
+          this.leftNode = null;
+          this.rightNode = null;
+          this.topRightNode = null;
+          this.topLeftNode = null;
+          this.bottomLeftNode = null;
+          this.bottomRightNode = null;
+          this.arrNode = [this.topNode,this.bottomNode,this.leftNode,this.rightNode,this.topRightNode,this.topLeftNode,this.bottomLeftNode,this.bottomRightNode];
+          this.x = x;
+          this.y = y;
+        }
+        updateArrNode(){
+          this.arrNode = [this.topNode,this.bottomNode,this.leftNode,this.rightNode,this.topRightNode,this.topLeftNode,this.bottomLeftNode,this.bottomRightNode];
+        }
+      }
+      var jmlNode = [];
+      $(document).ready(function(){
+        startGame();
+        if (orangAtauMacan == 2) {
+          cekGame();
+        }
+      });
     </script>
 </html>
