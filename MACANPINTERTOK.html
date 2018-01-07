@@ -91,30 +91,30 @@
         var macanMenang = false;
         var idmacan = "99";
         var ThinkAI= false;
-        var plydepth = 3;
+        var plydepth = 1;
         var anakMati = 0;
-        function itungSBE(turnkeberapa,alpha = -Infinity, beta = Infinity, level=0){
+        function itungSBE(turnkeberapa, level=0){
           let nilai = -Infinity;
           let tempReturn = [];
           if (level == plydepth) {
             nilai = 0;
             var idmacansplitted = idmacan.split("");
-            nilai -= (jmlOrangPapan+jumlahMaxOrang)*1000;
+            nilai -= (jmlOrangPapan+jumlahMaxOrang)*100;
             console.log("Nilai Setelah Orang : "+nilai);
             if (cekJumlahJalanMacanAI() == 0) {
               nilai -= 1000000;
             }
             console.log("Nilai Setelah Ga ada Jalan : "+nilai);
-            nilai += ambilJumlahJalanMacanAI()*5;
+            nilai += cekJumlahJalanMacanAI()*2;
             console.log("Nilai Setelah Cek Ada Jalan : "+nilai);
             anakMati = 0;
             for (var i = 0; i < jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode.length; i++) {
               if (jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i] != null) {
-                anakMati += recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0);
+                anakMati += recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) * 10;
                 //nilai = nilai + recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) * 2;
               }
             }
-            nilai += (anakMati*10);
+            nilai += anakMati;
             if (idmacan == "00" || idmacan == "02" || idmacan == "06" || idmacan == "08" || idmacan == "40" || idmacan == "42" || idmacan == "46" || idmacan == "48") {
               nilai -= 10;
             }
@@ -122,7 +122,7 @@
               nilai += 1000000;
             }
             console.log("Nilai Setelah Orang Kalah : "+nilai);
-            return turnkeberapa == 1 ? -nilai : nilai;
+            return nilai;
           }else{
             if (turnkeberapa == 1) {
               //macan
@@ -137,13 +137,10 @@
                       var diHidupkan = recursiveMakanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,nodeTembak);
                       taruhMacan(nodeTembak);
                       balikNode(nodeawal);
-                      var totalTemp = itungSBE(2,-beta,alpha,level+1);
+                      var totalTemp = itungSBE(2,level+1);
                       console.log("Macan Level : "+level + " Node Tembak : "+nodeTembak + " Node Awal : "+nodeawal + " Nilai : " + nilai + " Total Temp : "+totalTemp );
                       if (totalTemp >= nilai) {
-                        nilai = totalTemp;
-                        if (alpha < nilai) {
-                          alpha = nilai;
-                        }
+                        nilai = totalTemp
                         if (level == 0) {
                           tempReturn = {0:nodeawal , 1:nodeTembak};
                         }
@@ -154,11 +151,6 @@
                       }
                       balikNode(nodeTembak);
                       taruhMacan(nodeawal);
-
-                      console.log("----------------INI ALPHA : "+alpha+" , INI BETA : "+beta+"----------------");
-                      if (alpha >= beta) {console.log("INI PRUNING");
-                        i = jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode.length;
-                      }
                     }
                   }
                 }
@@ -173,13 +165,10 @@
                         taruhOrang(i+""+j);
                         jmlOrangPapan++;
                         jumlahMaxOrang--;
-                        var totalTemp = itungSBE(1,-beta,alpha,level+1);
+                        var totalTemp = itungSBE(1,level+1);
                         console.log("Orang Level : "+level + " Orang Baru : " +  i+""+j + " Orang Lama : " + i+""+j + " Nilai : " + nilai + " Total Temp : "+totalTemp );
                         if (totalTemp >= nilai) {
-                          nilai = totalTemp;
-                          if (alpha < nilai) {
-                            alpha = nilai;
-                          }
+                          nilai = totalTemp
                           if (level == 0) {
                             tempReturn = {0:i+""+j , 1:i+""+j};
                           }
@@ -187,12 +176,6 @@
                         jumlahMaxOrang++;
                         jmlOrangPapan--;
                         balikNode(i+""+j);
-
-                        console.log("----------------INI ALPHA : "+alpha+" , INI BETA : "+beta+"----------------");
-                        if (alpha >= beta) {console.log("INI PRUNING");
-                          i = 5;
-                          j = 9;
-                        }
                       }
                     }
                   }
@@ -207,28 +190,16 @@
                             if (cekJalanOrang(jmlNode[i][j].arrNode[k].id,i+""+j) && jmlNode[i][j].arrNode[k].type == "Node") {
                               taruhOrang(jmlNode[i][j].arrNode[k].id);
                               balikNode(i+""+j);
-                              var totalTemp = itungSBE(1,-beta,alpha,level+1);
+                              var totalTemp = itungSBE(1,level+1);
                               console.log("Orang Level : "+level + " Orang Baru : " + jmlNode[i][j].arrNode[k].id + " Orang Lama : " + i+""+j+ " Nilai : " + nilai + " Total Temp : "+totalTemp );
                               if (totalTemp >= nilai) {
-                                nilai = totalTemp;
-                                if (alpha < nilai) {
-                                  alpha = nilai;
-                                }
+                                nilai = totalTemp
                                 if (level == 0) {
                                   tempReturn = {0:i+""+j , 1:jmlNode[i][j].arrNode[k].id};
                                 }
                               }
                               balikNode(jmlNode[i][j].arrNode[k].id);
                               taruhOrang(i+""+j);
-
-                              console.log("----------------INI ALPHA : "+alpha+" , INI BETA : "+beta+"----------------");
-                              if (alpha >= beta) {console.log("INI PRUNING");
-
-                                i = 5;
-                                j = 9;
-                                break;
-
-                              }
                             }
                           }
                         }
@@ -273,18 +244,6 @@
           }
           return depth % 2 == 1 ? depth : depth == 0 ? 1 : 0;
         }
-        function ambilJumlahJalanMacanAI(){
-          var idmacansplitted = idmacan.split("");
-          var adajalan = 0;
-          for (var i = 0; i < jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode.length; i++) {
-            if (jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i] != null) {
-              if(recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0) != 0){
-                adajalan+= recursiveCekJumlahJalanMacanAI(jmlNode[idmacansplitted[0]][idmacansplitted[1]].arrNode[i],i,0);
-              }
-            }
-          }
-          return adajalan;
-        }
         function cekJumlahJalanMacanAI(){
           var idmacansplitted = idmacan.split("");
           var adajalan = 0;
@@ -316,7 +275,7 @@
           cekGame();
         }
         var myVar = setInterval(function(){gantiWaktudanGiliran();},10);
-        var myVar2 = orangAtauMacan == 3 ? setInterval(function(){AIJalan();},5000) : -1;
+        var myVar2 = orangAtauMacan == 3 ? setInterval(function(){AIJalan();},500) : -1;
         function createLineElement(x, y, length, angle) {
           var line = document.createElement("div");
           var styles = 'border: 1px solid black; '
@@ -440,10 +399,6 @@
                     sudahPencet=false;
                     idlama=-1;
                     giliranKeberapa++;
-                  }else{
-                    sudahPencet = false;
-                    gambarUlang();
-                    idlama = -1;
                   }
                 }else {
                   var cupu = id.split("");
@@ -454,7 +409,7 @@
                   }else if (jmlNode[cupu[0]][cupu[1]].type == "Macan") {
 
                   }else{
-                    if (jumlahMaxOrang > 0) {
+                    if (jumlahMaxOrang >0) {
                       taruhOrang(id);
                       jumlahMaxOrang--;
                       jmlOrangPapan++;
